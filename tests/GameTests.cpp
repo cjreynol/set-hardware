@@ -1,6 +1,9 @@
 #include "pch.h"
+
 #include "CppUnitTest.h"
+
 #include "../Game.h"
+#include "../GameManager.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -17,7 +20,7 @@ namespace tests
 
 		TEST_METHOD(Unitialized_Game_Has_No_Set)
 		{
-			Assert::IsFalse(_game.Has_Set());
+			Assert::IsFalse(Set::GameManager::Has_Set(_game));
 		}
 
 	private:
