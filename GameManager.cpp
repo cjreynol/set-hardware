@@ -3,7 +3,7 @@
 
 namespace Set
 {
-    void GameManager::Initialize_Game(Game& game, default_random_engine random_source)
+    void GameManager::Initialize_Game(Game& game, std::default_random_engine random_source)
     {
         game.deck.clear();
         game.board.clear();
@@ -23,31 +23,31 @@ namespace Set
         return result.has_value();
     }
 
-    optional<tuple<Card, Card, Card>> GameManager::Find_Set(const Game& game)
+    std::optional<std::tuple<Card, Card, Card>> GameManager::Find_Set(const Game& game)
     {
-        auto result = optional<tuple<Card, Card, Card>>();
+        auto result = std::optional<std::tuple<Card, Card, Card>>();
 
         auto search_result = Find_Set(game, 0, 1, 2);
         if (search_result.has_value() == true)
         {
             auto [i1, i2, i3] = search_result.value();
-            tuple<Card, Card, Card> card_tuple = { game.board[i1], game.board[i2], game.board[i3] };
+            std::tuple<Card, Card, Card> card_tuple = { game.board[i1], game.board[i2], game.board[i3] };
             result.emplace(card_tuple);
         }
 
         return result;
     }
 
-    optional<tuple<uint8_t, uint8_t, uint8_t>> GameManager::Find_Set(const Game& game, 
-                                                                        uint8_t index1, 
-                                                                        uint8_t index2, 
-                                                                        uint8_t index3)
+    std::optional<std::tuple<uint8_t, uint8_t, uint8_t>> GameManager::Find_Set(const Game& game, 
+                                                                                uint8_t index1, 
+                                                                                uint8_t index2, 
+                                                                                uint8_t index3)
     {
-        auto result = optional<tuple<uint8_t, uint8_t, uint8_t>>();
+        auto result = std::optional<std::tuple<uint8_t, uint8_t, uint8_t>>();
 
         if (index3 < game.board.size() && Is_Set(game, index1, index2, index3) == true)
         {
-            tuple<uint8_t, uint8_t, uint8_t> index_tuple = { index1, index2, index3 };
+            std::tuple<uint8_t, uint8_t, uint8_t> index_tuple = { index1, index2, index3 };
             result.emplace(index_tuple);
         }
         else
@@ -56,27 +56,22 @@ namespace Set
             if (index3 >= game.board.size())
             {
                 index2++;
-                index3 = index2 + 1;
+                index3 = static_cast<uint8_t>(index2 + 1);
             }
-            if (index2 + 1 >= game.board.size())
+            if (static_cast<size_t>(index2 + 1) >= game.board.size())
             {
                 index1++;
-                index2 = index1 + 1;
-                index3 = index2 + 1;
+                index2 = static_cast<uint8_t>(index1 + 1);
+                index3 = static_cast<uint8_t>(index2 + 1);
             }
 
-            if (index1 + 2 < game.board.size())
+            if (static_cast<size_t>(index1 + 2) < game.board.size())
             {
                 result = Find_Set(game, index1, index2, index3);
             }
         }
 
         return result;
-    }
-
-    bool GameManager::Is_Set(const Game& game, uint8_t index1, uint8_t index2, uint8_t index3)
-    {
-        return Is_Set(game.board[index1], game.board[index2], game.board[index3]);
     }
 
     void GameManager::Add_Cards_To_Board(Game& game)
@@ -118,25 +113,17 @@ namespace Set
         game.board.emplace_back(card);
     }
 
+    bool GameManager::Is_Set(const Game& game, uint8_t index1, uint8_t index2, uint8_t index3)
+    {
+        return Is_Set(game.board[index1], game.board[index2], game.board[index3]);
+    }
+
     bool GameManager::Is_Set(const Card& c1, const Card& c2, const Card& c3)
     {
-        bool result = false;
-
-        if (Is_Match(c1.color, c2.color, c3.color) || Is_Diff(c1.color, c2.color, c3.color))
-        {
-            if (Is_Match(c1.number, c2.number, c3.number) || Is_Diff(c1.number, c2.number, c3.number))
-            {
-                if (Is_Match(c1.shape, c2.shape, c3.shape) || Is_Diff(c1.shape, c2.shape, c3.shape))
-                {
-                    if (Is_Match(c1.fill, c2.fill, c3.fill) || Is_Diff(c1.fill, c2.fill, c3.fill))
-                    {
-                        result = true;
-                    }
-                }
-            }
-        }
-
-        return result;
+        return (Is_Match(c1.color, c2.color, c3.color) || Is_Diff(c1.color, c2.color, c3.color))
+            && (Is_Match(c1.number, c2.number, c3.number) || Is_Diff(c1.number, c2.number, c3.number))
+            && (Is_Match(c1.shape, c2.shape, c3.shape) || Is_Diff(c1.shape, c2.shape, c3.shape))
+            && (Is_Match(c1.fill, c2.fill, c3.fill) || Is_Diff(c1.fill, c2.fill, c3.fill));
     }
 
     bool GameManager::Is_Match(uint8_t val1, uint8_t val2, uint8_t val3)
